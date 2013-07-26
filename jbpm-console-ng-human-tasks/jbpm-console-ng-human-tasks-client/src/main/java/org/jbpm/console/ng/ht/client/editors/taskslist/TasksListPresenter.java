@@ -31,6 +31,8 @@ import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
+import org.jboss.errai.bus.client.api.ErrorCallback;
+import org.jboss.errai.bus.client.api.Message;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 import java.util.HashMap;
@@ -42,6 +44,10 @@ import org.jbpm.console.ng.ht.client.util.DateUtils;
 import org.jbpm.console.ng.ht.model.Day;
 import org.jbpm.console.ng.ht.model.TaskSummary;
 import org.jbpm.console.ng.ht.service.TaskServiceEntryPoint;
+import org.jbpm.console.ng.udc.client.event.EventsUsageData;
+import org.jbpm.console.ng.udc.client.event.LevelsUsageEvent;
+import org.jbpm.console.ng.udc.client.event.StatusUsageEvent;
+import org.jbpm.console.ng.udc.client.usagelist.UsageDataPresenter;
 import org.uberfire.client.annotations.WorkbenchPartTitle;
 import org.uberfire.client.annotations.WorkbenchPartView;
 import org.uberfire.client.annotations.WorkbenchScreen;
@@ -58,6 +64,9 @@ public class TasksListPresenter {
     private List<TaskSummary> allTaskSummaries;
 
     private Map<Day, List<TaskSummary>> currentDayTasks;
+    
+    @Inject
+    private UsageDataPresenter usageDataAudit;
     
     public List<TaskSummary> getAllTaskSummaries() {
         return allTaskSummaries;
@@ -188,42 +197,86 @@ public class TasksListPresenter {
         taskServices.call( new RemoteCallback<List<TaskSummary>>() {
             @Override
             public void callback( List<TaskSummary> tasks ) {
-                view.displayNotification( "Task(s) Started" );
+            	final String description = "Task(s) Started"; 
+                view.displayNotification( description );
+                auditEvent(selectedTasks, description, userId, EventsUsageData.HUMAN_TASKS_STARTED, StatusUsageEvent.SUCCESS, 
+                		LevelsUsageEvent.INFO);
                 view.refreshTasks();
+            }
+        }, new ErrorCallback() {
+            @Override
+            public boolean error( Message message, Throwable throwable ) {
+                view.displayNotification( "Task(s) Started - ERROR" );
+                auditEvent(selectedTasks, throwable.getMessage(), userId, EventsUsageData.HUMAN_TASKS_STARTED, StatusUsageEvent.ERROR,
+                		LevelsUsageEvent.ERROR);
+                return false;
             }
         } ).startBatch( selectedTasks, userId );
     }
 
-    public void releaseTasks( List<Long> selectedTasks,
+    public void releaseTasks( final List<Long> selectedTasks,
                               final String userId ) {
         taskServices.call( new RemoteCallback<List<TaskSummary>>() {
             @Override
             public void callback( List<TaskSummary> tasks ) {
-                view.displayNotification( "Task(s) Released" );
+            	final String description = "Task(s) Released";
+                view.displayNotification( description );
+                auditEvent(selectedTasks, description, userId, EventsUsageData.HUMAN_TASKS_RELEASED, StatusUsageEvent.SUCCESS,
+                        LevelsUsageEvent.INFO);
                 view.refreshTasks();
+            }
+        }, new ErrorCallback() {
+            @Override
+            public boolean error( Message message, Throwable throwable ) {
+                view.displayNotification( "Task(s) Released - ERROR" );
+                auditEvent(selectedTasks, throwable.getMessage(), userId, EventsUsageData.HUMAN_TASKS_RELEASED, 
+                		StatusUsageEvent.ERROR, LevelsUsageEvent.ERROR);
+                return false;
             }
         } ).releaseBatch( selectedTasks, userId );
     }
 
-    public void completeTasks( List<Long> selectedTasks,
+    public void completeTasks( final List<Long> selectedTasks,
                                final String userId ) {
         taskServices.call( new RemoteCallback<List<TaskSummary>>() {
             @Override
             public void callback( List<TaskSummary> tasks ) {
-                view.displayNotification( "Task(s) Completed" );
+            	final String description = "Task(s) Completed";
+                view.displayNotification( description );
+                auditEvent(selectedTasks, description, userId, EventsUsageData.HUMAN_TASKS_COMPLETED, StatusUsageEvent.SUCCESS,
+                        LevelsUsageEvent.INFO);
                 view.refreshTasks();
+            }
+        }, new ErrorCallback() {
+            @Override
+            public boolean error( Message message, Throwable throwable ) {
+                view.displayNotification( "Task(s) Completed - ERROR" );
+                auditEvent(selectedTasks, throwable.getMessage(), userId, EventsUsageData.HUMAN_TASKS_COMPLETED, 
+                		StatusUsageEvent.ERROR, LevelsUsageEvent.ERROR);
+                return false;
             }
         } ).completeBatch( selectedTasks, userId, null );
     }
 
-    public void claimTasks( List<Long> selectedTasks,
+    public void claimTasks( final List<Long> selectedTasks,
                             final String userId ) {
         taskServices.call( new RemoteCallback<List<TaskSummary>>() {
             @Override
             public void callback( List<TaskSummary> tasks ) {
-                view.displayNotification( "Task(s) Claimed" );
+            	final String description = "Task(s) Claimed";
+                view.displayNotification( description );
+                auditEvent(selectedTasks, description, userId, EventsUsageData.HUMAN_TASKS_CLAIMED, StatusUsageEvent.SUCCESS,
+                        LevelsUsageEvent.INFO);
                 view.refreshTasks();
 
+            }
+        }, new ErrorCallback() {
+            @Override
+            public boolean error(Message message, Throwable throwable) {
+                view.displayNotification("Task(s) Claimed - ERROR");
+                auditEvent(selectedTasks, throwable.getMessage(), userId, EventsUsageData.HUMAN_TASKS_CLAIMED, StatusUsageEvent.ERROR,
+                        LevelsUsageEvent.ERROR);
+                return false;
             }
         } ).claimBatch( selectedTasks, userId );
     }
@@ -423,6 +476,16 @@ public class TasksListPresenter {
 
     public ListDataProvider<TaskSummary> getDataProvider() {
         return dataProvider;
+    }
+    
+    /**
+     * Invoke Usage Data Collector
+     */
+    public void auditEvent(List<Long> selectedTasks, String description, String user, EventsUsageData usageEvent,
+            StatusUsageEvent status, LevelsUsageEvent level) {
+        for (Long key : selectedTasks) {
+        	usageDataAudit.auditEvent(String.valueOf(key), description, user, usageEvent, status, level);
+        }
     }
 
 }

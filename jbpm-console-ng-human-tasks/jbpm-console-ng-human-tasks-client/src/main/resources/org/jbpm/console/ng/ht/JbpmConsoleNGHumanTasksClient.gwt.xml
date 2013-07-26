@@ -29,6 +29,9 @@
 
   <inherits name="org.uberfire.UberfireWorkbench" />
   <inherits name="org.uberfire.UberfireWidgetsCommons" />
+  
+  <inherits name="org.jbpm.console.ng.ht.JbpmConsoleNGHumanTasksAPI" />
+  <inherits name="org.jbpm.console.ng.udc.JbpmConsoleNGUsageDataClient"/>
 
   <inherits name="org.jbpm.console.ng.ht.JbpmConsoleNGHumanTasksAPI" />
 

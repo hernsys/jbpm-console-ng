@@ -33,6 +33,10 @@ import org.jboss.errai.bus.client.api.RemoteCallback;
 import org.jboss.errai.ioc.client.api.Caller;
 import org.jbpm.console.ng.ht.client.i18n.Constants;
 import org.jbpm.console.ng.ht.service.TaskServiceEntryPoint;
+import org.jbpm.console.ng.udc.client.usagelist.UsageDataPresenter;
+import org.jbpm.console.ng.udc.client.event.StatusUsageEvent;
+import org.jbpm.console.ng.udc.client.event.LevelsUsageEvent;
+import org.jbpm.console.ng.udc.client.event.EventsUsageData;
 import org.uberfire.client.annotations.OnReveal;
 import org.uberfire.client.annotations.OnStart;
 import org.uberfire.client.annotations.WorkbenchPartTitle;
@@ -76,6 +80,9 @@ public class QuickNewTaskPresenter {
 
     @Inject
     private PlaceManager placeManager;
+    
+    @Inject
+    private UsageDataPresenter usageDataAudit;
 
     @OnStart
     public void onStart( final PlaceRequest place ) {
@@ -100,7 +107,7 @@ public class QuickNewTaskPresenter {
     }
 
     public void addTask( final List<String> users, List<String> groups,
-                         String taskName,
+                         final String taskName,
                          int priority,
                          boolean isAssignToMe,
                          Date due ) {
@@ -136,6 +143,8 @@ public class QuickNewTaskPresenter {
                 @Override
                 public void callback( Long taskId ) {
                     view.displayNotification( "Task Created and Started (id = " + taskId + ")" );
+                    usageDataAudit.auditEvent( taskId.toString(), taskName, identity.getName(), 
+                    		EventsUsageData.HUMAN_TASKS_CSC, StatusUsageEvent.SUCCESS, LevelsUsageEvent.INFO);
                     close();
                 }
             } ).addTaskAndClaimAndStart( str, null, identity.getName(), templateVars );
@@ -146,6 +155,8 @@ public class QuickNewTaskPresenter {
                 @Override
                 public void callback( Long taskId ) {
                     view.displayNotification( "Task Created and Started (id = " + taskId + ")" );
+                    usageDataAudit.auditEvent( taskId.toString(), taskName, identity.getName(), 
+                    		EventsUsageData.HUMAN_TASKS_CREATED, StatusUsageEvent.SUCCESS, LevelsUsageEvent.INFO );
                     close();
 
                 }
@@ -156,6 +167,8 @@ public class QuickNewTaskPresenter {
                 @Override
                 public void callback( Long taskId ) {
                     view.displayNotification( "Task Created (id = " + taskId + ")" );
+                    usageDataAudit.auditEvent( taskId.toString(), taskName, identity.getName(), 
+                    		EventsUsageData.HUMAN_TASKS_CREATED_STARTED, StatusUsageEvent.SUCCESS, LevelsUsageEvent.INFO );
                     close();
 
                 }
@@ -166,6 +179,8 @@ public class QuickNewTaskPresenter {
                 @Override
                 public void callback( Long taskId ) {
                     view.displayNotification( "Task Created (id = " + taskId + ")" );
+                    usageDataAudit.auditEvent( taskId.toString(), taskName, identity.getName(), 
+                    		EventsUsageData.HUMAN_TASKS_CREATED, StatusUsageEvent.SUCCESS, LevelsUsageEvent.INFO );
                     close();
 
                 }
@@ -176,6 +191,8 @@ public class QuickNewTaskPresenter {
                 @Override
                 public void callback( Long taskId ) {
                     view.displayNotification( "Task Created (id = " + taskId + ")" );
+                    usageDataAudit.auditEvent( taskId.toString(), taskName, identity.getName(), 
+                    		EventsUsageData.HUMAN_TASKS_CREATED, StatusUsageEvent.SUCCESS, LevelsUsageEvent.INFO );
                     close();
 
                 }
