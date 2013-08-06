@@ -62,6 +62,12 @@
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-form-modeler-renderer-backend</artifactId>
     </dependency>
+    
+    <dependency>
+      <groupId>org.guvnor</groupId>
+      <artifactId>guvnor-usage-data-client</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.uberfire</groupId>

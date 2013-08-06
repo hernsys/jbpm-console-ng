@@ -150,6 +150,18 @@
         </exclusion>
       </exclusions>
     </dependency>
+    
+    <dependency>
+      <groupId>org.guvnor</groupId>
+      <artifactId>guvnor-usage-data-client</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.guvnor</groupId>
+      <artifactId>guvnor-usage-data-backend</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <!-- UberFire -->
     <dependency>
