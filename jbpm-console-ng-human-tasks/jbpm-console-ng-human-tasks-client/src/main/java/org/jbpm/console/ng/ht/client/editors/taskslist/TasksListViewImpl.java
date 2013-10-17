@@ -38,6 +38,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -61,6 +62,7 @@ import java.util.List;
 
 import javax.enterprise.event.Observes;
 
+import org.drools.core.xml.Handler;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 import org.jbpm.console.ng.ht.client.editors.taskslist.TasksListPresenter.TaskType;
@@ -162,6 +164,17 @@ public class TasksListViewImpl extends Composite implements TasksListPresenter.T
 
     public TasksListViewImpl() {
         pager = new SimplePager(SimplePager.TextLocation.CENTER, false, true);
+        pager.sinkEvents(1);
+        pager.addHandler(new ClickHandler(){
+            @Override
+            public void onClick(ClickEvent event) {
+                if(currentTaskType.equals(TaskType.ALL)){
+                	DataGridUtils.paintRowsCompleted(myTaskListGrid);
+                }else if(DataGridUtils.currentIdSelected != null){
+                	DataGridUtils.paintRowSelected(myTaskListGrid, DataGridUtils.currentIdSelected);
+                }
+            }
+        }, ClickEvent.getType());
     }
 
     @Override
@@ -836,7 +849,7 @@ public class TasksListViewImpl extends Composite implements TasksListPresenter.T
     
     public void changeRowSelected(@Observes TaskStyleEvent taskStyleEvent){
         if( taskStyleEvent.getTaskEventId() != null && this.getCurrentView() == TaskView.GRID){
-            DataGridUtils.paintRowSelected(myTaskListGrid, taskStyleEvent.getTaskEventId(), pager.getPage());
+            DataGridUtils.paintRowSelected(myTaskListGrid, taskStyleEvent.getTaskEventId());
         } 
         if(currentTaskType.equals(TaskType.ALL)){
             DataGridUtils.paintRowsCompleted(myTaskListGrid);

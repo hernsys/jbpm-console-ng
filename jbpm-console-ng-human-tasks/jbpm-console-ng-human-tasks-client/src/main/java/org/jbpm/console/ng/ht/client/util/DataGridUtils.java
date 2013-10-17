@@ -102,7 +102,7 @@ public class DataGridUtils {
         
     }
 
-    public static void paintRowSelected(DataGrid<TaskSummary> myTaskListGrid, Long idTask, int page) {
+    public static void paintRowSelected(DataGrid<TaskSummary> myTaskListGrid, Long idTask) {
         for (int i = 0; i < getCurrentRowCount(myTaskListGrid); i++) {
             for (int j = 0; j < myTaskListGrid.getColumnCount(); j++) {
                 if (!Long.valueOf(myTaskListGrid.getRowElement(i).getCells().getItem(0).getInnerText()).equals(idTask)) {
@@ -134,6 +134,9 @@ public class DataGridUtils {
                     myTaskListGrid.getRowElement(i).getCells().getItem(j).getStyle().setBackgroundColor(BG_ROW_COMPLETED);
                 }
             }
+        }
+        if(DataGridUtils.currentIdSelected != null){
+        	paintRowSelected(myTaskListGrid, DataGridUtils.currentIdSelected);
         }
     }
     
