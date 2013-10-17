@@ -162,6 +162,20 @@ public class TasksListViewImpl extends Composite implements TasksListPresenter.T
 
     public TasksListViewImpl() {
         pager = new SimplePager(SimplePager.TextLocation.CENTER, false, true);
+        pager.sinkEvents(1);
+        pager.addHandler(new ClickHandler(){
+            @Override
+            public void onClick(ClickEvent event) {
+            	GWT.log("click");
+                if(currentTaskType.equals(TaskType.ALL)){
+                	GWT.log("all");
+                	DataGridUtils.paintRowsCompleted(myTaskListGrid);
+                }else if(DataGridUtils.currentIdSelected != null){
+                	GWT.log("not all");
+                	DataGridUtils.paintRowSelected(myTaskListGrid, DataGridUtils.currentIdSelected);
+                }
+            }
+        }, ClickEvent.getType());
     }
 
     @Override
@@ -836,7 +850,7 @@ public class TasksListViewImpl extends Composite implements TasksListPresenter.T
     
     public void changeRowSelected(@Observes TaskStyleEvent taskStyleEvent){
         if( taskStyleEvent.getTaskEventId() != null && this.getCurrentView() == TaskView.GRID){
-            DataGridUtils.paintRowSelected(myTaskListGrid, taskStyleEvent.getTaskEventId(), pager.getPage());
+            DataGridUtils.paintRowSelected(myTaskListGrid, taskStyleEvent.getTaskEventId());
         } 
         if(currentTaskType.equals(TaskType.ALL)){
             DataGridUtils.paintRowsCompleted(myTaskListGrid);
