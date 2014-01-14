@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jbpm.console.ng.ht.client.editors.taskslist.base;
+package org.jbpm.console.ng.gc.client.list.base;
 
 import java.util.List;
 

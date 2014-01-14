@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jbpm.console.ng.ht.client.editors.taskslist.base;
+package org.jbpm.console.ng.gc.client.list.base;
 
 public interface PagerContainer {
 
@@ -22,6 +22,6 @@ public interface PagerContainer {
      * this method must be overwriting when the ClickEvent need a particular
      * logic
      */
-    public void addHandlerPager();
+    void addHandlerPager();
 
 }

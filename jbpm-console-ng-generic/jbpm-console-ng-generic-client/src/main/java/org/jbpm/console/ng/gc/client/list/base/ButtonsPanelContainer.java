@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package org.jbpm.console.ng.ht.client.editors.taskslist.base;
+package org.jbpm.console.ng.gc.client.list.base;
 
 public interface ButtonsPanelContainer {
 
-    public abstract void initializeLeftButtons();
+    void initializeLeftButtons();
 
-    public abstract void initializeRightButtons();
+    void initializeRightButtons();
 
 }

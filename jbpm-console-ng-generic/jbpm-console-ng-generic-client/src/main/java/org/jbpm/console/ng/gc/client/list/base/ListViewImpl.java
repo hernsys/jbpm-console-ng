@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jbpm.console.ng.ht.client.editors.taskslist.base;
+package org.jbpm.console.ng.gc.client.list.base;
 
 import java.util.Comparator;
 
@@ -23,8 +23,8 @@ import javax.inject.Inject;
 
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
-import org.jbpm.console.ng.ht.client.util.DataGridUtils;
-import org.jbpm.console.ng.ht.client.util.ResizableHeader;
+import org.jbpm.console.ng.gc.client.util.DataGridUtils;
+import org.jbpm.console.ng.gc.client.util.ResizableHeader;
 import org.jbpm.console.ng.ht.model.TaskSummary;
 
 import com.github.gwtbootstrap.client.ui.Button;

@@ -18,6 +18,7 @@ package org.jbpm.console.ng.ht.client.editors.taskcomments;
 
 import com.github.gwtbootstrap.client.ui.Button;
 import com.github.gwtbootstrap.client.ui.ControlLabel;
+
 import java.util.Comparator;
 import java.util.Date;
 
@@ -27,6 +28,7 @@ import javax.inject.Inject;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
+import org.jbpm.console.ng.gc.client.util.ResizableHeader;
 import org.jbpm.console.ng.ht.model.CommentSummary;
 
 import com.github.gwtbootstrap.client.ui.DataGrid;
@@ -50,12 +52,14 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTMLPanel;
+
 import java.util.LinkedList;
 import java.util.List;
+
 import javax.enterprise.event.Event;
+
 import org.jbpm.console.ng.ht.client.i18n.Constants;
 import org.jbpm.console.ng.ht.client.resources.HumanTasksImages;
-import org.jbpm.console.ng.ht.client.util.ResizableHeader;
 import org.jbpm.console.ng.pr.model.ProcessInstanceSummary;
 import org.uberfire.workbench.events.NotificationEvent;
 

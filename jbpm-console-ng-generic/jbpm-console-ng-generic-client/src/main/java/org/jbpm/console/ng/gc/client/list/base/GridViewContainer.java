@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package org.jbpm.console.ng.ht.client.editors.taskslist.base;
+package org.jbpm.console.ng.gc.client.list.base;
 
 public interface GridViewContainer {
 
     static final String GRID_STYLE = "table table-bordered table-striped table-hover";
 
-    abstract void initializeGridView();
+    void initializeGridView();
 
-    abstract void setSelectionModel();
+    void setSelectionModel();
 
-    abstract void setGridEvents();
+    void setGridEvents();
 
-    abstract void initGridColumns();
+    void initGridColumns();
 
-    abstract void refreshItems();
+    void refreshItems();
 
 }

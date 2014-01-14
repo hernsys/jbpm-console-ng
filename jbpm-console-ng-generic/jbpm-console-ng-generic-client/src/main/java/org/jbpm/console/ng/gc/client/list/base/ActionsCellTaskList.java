@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package org.jbpm.console.ng.ht.client.editors.taskslist.base;
+package org.jbpm.console.ng.gc.client.list.base;
 
 import javax.inject.Inject;
 
-import org.jbpm.console.ng.ht.client.i18n.Constants;
-import org.jbpm.console.ng.ht.client.resources.HumanTasksImages;
+import org.jbpm.console.ng.gc.client.i18n.Constants;
+import org.jbpm.console.ng.gc.client.resources.GenericImages;
 import org.jbpm.console.ng.ht.model.TaskSummary;
 import org.uberfire.security.Identity;
 
@@ -40,7 +40,7 @@ public class ActionsCellTaskList extends Composite {
     @Inject
     protected Identity identity;
 
-    public static HumanTasksImages images = GWT.create(HumanTasksImages.class);
+    public static GenericImages images = GWT.create(GenericImages.class);
 
     public class DetailsHasCell implements HasCell<TaskSummary, TaskSummary> {
         private ActionCell<TaskSummary> cell;

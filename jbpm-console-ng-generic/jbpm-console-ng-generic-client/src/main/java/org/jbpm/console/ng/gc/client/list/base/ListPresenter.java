@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jbpm.console.ng.ht.client.editors.taskslist.base;
+package org.jbpm.console.ng.gc.client.list.base;
 
 import java.util.List;
 
@@ -107,7 +107,7 @@ public class ListPresenter extends BasePresenter<TaskSummary> {
         child11.setId(11);
         child11.setName("11 item");
         child12.setId(12);
-        child13.setName("12 item");
+        child12.setName("12 item");
         child13.setId(13);
         child13.setName("13 item");
         child14.setId(14);
@@ -168,6 +168,7 @@ public class ListPresenter extends BasePresenter<TaskSummary> {
         List<TaskSummary> filteredTasksSimple = Lists.newArrayList();
         if (!text.equals("")) {
             for (TaskSummary ts : allItemsSummaries) {
+                GWT.log("ts.getName() " + ts.getName());
                 if (ts.getName().toLowerCase().contains(text.toLowerCase())) {
                     filteredTasksSimple.add(ts);
                 }
