@@ -23,18 +23,14 @@ import javax.inject.Inject;
 
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
-import org.jbpm.console.ng.gc.client.util.DataGridUtils;
 import org.jbpm.console.ng.gc.client.util.ResizableHeader;
 import org.jbpm.console.ng.ht.model.TaskSummary;
 
 import com.github.gwtbootstrap.client.ui.Button;
-import com.github.gwtbootstrap.client.ui.DataGrid;
 import com.github.gwtbootstrap.client.ui.NavLink;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.ColumnSortEvent;
-import com.google.gwt.user.client.ui.HTMLPanel;
 
 @Dependent
 @Templated(value = "ListViewImpl.html")
@@ -52,39 +48,7 @@ public class ListViewImpl extends BaseViewImpl<TaskSummary, ListPresenter> imple
 
     @Override
     public void init(ListPresenter presenter) {
-        this.presenter = presenter;
-        this.initializeGridView();
-        this.initializeLeftButtons();
-        this.initializeRightButtons();
-
-    }
-
-    @Override
-    public void initializeGridView() {
-        viewContainer.clear();
-
-        myListGrid = new DataGrid<TaskSummary>();
-        myListGrid.setStyleName(GRID_STYLE);
-
-        pager.setDisplay(myListGrid);
-        pager.setPageSize(DataGridUtils.pageSize);
-
-        viewContainer.add(myListGrid);
-        myListGrid.setEmptyTableWidget(new HTMLPanel(constants.No_Tasks_Found()));
-
-        sortHandler = new ColumnSortEvent.ListHandler<TaskSummary>(presenter.getDataProvider().getList());
-
-        myListGrid.getColumnSortList().setLimit(1);
-
-        this.setSelectionModel();
-        this.setGridEvents();
-        this.initGridColumns();
-
-        myListGrid.addColumnSortHandler(sortHandler);
-
-        presenter.addDataDisplay(myListGrid);
-
-        this.refreshItems();
+        super.initializeComponents(presenter, presenter.getDataProvider());
     }
 
     @Override

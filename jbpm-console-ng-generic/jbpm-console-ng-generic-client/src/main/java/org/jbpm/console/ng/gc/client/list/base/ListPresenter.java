@@ -29,7 +29,6 @@ import org.uberfire.client.annotations.WorkbenchScreen;
 import org.uberfire.client.mvp.UberView;
 
 import com.google.common.collect.Lists;
-import com.google.gwt.core.shared.GWT;
 import com.google.gwt.i18n.client.Constants.DefaultStringValue;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortList;
@@ -156,7 +155,6 @@ public class ListPresenter extends BasePresenter<TaskSummary> {
 
     @Override
     public void filterItems(String text) {
-        GWT.log("TEXT SEARCH " + text);
         ColumnSortList.ColumnSortInfo sortInfo = view.getListGrid().getColumnSortList().size() > 0 ? view.getListGrid()
                 .getColumnSortList().get(0) : null;
         if (allItemsSummaries != null) {
@@ -168,7 +166,6 @@ public class ListPresenter extends BasePresenter<TaskSummary> {
         List<TaskSummary> filteredTasksSimple = Lists.newArrayList();
         if (!text.equals("")) {
             for (TaskSummary ts : allItemsSummaries) {
-                GWT.log("ts.getName() " + ts.getName());
                 if (ts.getName().toLowerCase().contains(text.toLowerCase())) {
                     filteredTasksSimple.add(ts);
                 }

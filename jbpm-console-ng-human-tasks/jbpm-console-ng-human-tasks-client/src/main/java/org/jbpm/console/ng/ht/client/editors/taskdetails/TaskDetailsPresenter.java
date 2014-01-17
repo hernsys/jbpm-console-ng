@@ -24,15 +24,6 @@ import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.TextArea;
-import com.google.gwt.user.client.ui.TextBox;
-
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.common.client.api.RemoteCallback;
 import org.jbpm.console.ng.bd.service.DataServiceEntryPoint;
@@ -47,17 +38,26 @@ import org.jbpm.console.ng.ht.model.events.TaskStyleEvent;
 import org.jbpm.console.ng.ht.service.TaskServiceEntryPoint;
 import org.jbpm.console.ng.pr.model.ProcessInstanceSummary;
 import org.jbpm.console.ng.pr.model.events.ProcessInstancesWithDetailsRequestEvent;
-import org.uberfire.lifecycle.OnOpen;
-import org.uberfire.lifecycle.OnStartup;
 import org.uberfire.client.annotations.WorkbenchPartTitle;
 import org.uberfire.client.annotations.WorkbenchPartView;
 import org.uberfire.client.annotations.WorkbenchScreen;
 import org.uberfire.client.mvp.PlaceManager;
 import org.uberfire.client.mvp.UberView;
 import org.uberfire.lifecycle.OnClose;
+import org.uberfire.lifecycle.OnOpen;
+import org.uberfire.lifecycle.OnStartup;
 import org.uberfire.mvp.PlaceRequest;
 import org.uberfire.security.Identity;
 import org.uberfire.workbench.events.BeforeClosePlaceEvent;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.TextArea;
+import com.google.gwt.user.client.ui.TextBox;
 
 @Dependent
 @WorkbenchScreen(identifier = "Task Details")
@@ -74,7 +74,7 @@ public class TaskDetailsPresenter {
         ListBox getTaskPriorityListBox();
 
         UTCDateBox getDueDate();
-        
+
         UTCTimeBox getDueDateTime();
 
         TextBox getUserText();
@@ -105,7 +105,7 @@ public class TaskDetailsPresenter {
 
     @Inject
     Identity identity;
-    
+
     @Inject
     private Event<ProcessInstancesWithDetailsRequestEvent> processInstanceSelected;
 
@@ -135,6 +135,7 @@ public class TaskDetailsPresenter {
 
     @OnStartup
     public void onStartup(final PlaceRequest place) {
+        GWT.log("start up in presenter");
         this.place = place;
     }
 
@@ -149,24 +150,23 @@ public class TaskDetailsPresenter {
     }
 
     public void goToProcessInstanceDetails() {
-        
+
         dataServices.call(new RemoteCallback<ProcessInstanceSummary>() {
             @Override
             public void callback(ProcessInstanceSummary processInstance) {
-                
+
                 placeManager.goTo("Process Instances");
                 processInstanceSelected.fire(new ProcessInstancesWithDetailsRequestEvent(processInstance.getDeploymentId(),
-                                processInstance.getId(), processInstance.getProcessId()));
+                        processInstance.getId(), processInstance.getProcessId()));
             }
         }).getProcessInstanceById(Long.parseLong(view.getProcessInstanceIdText().getText()));
-        
+
     }
 
-    public void updateTask(final String taskDescription,
-            final String userId,
-            // final String subTaskStrategy,
-            final Date dueDate,
-            final int priority) {
+    public void updateTask(final String taskDescription, final String userId,
+    // final String subTaskStrategy,
+            final Date dueDate, final int priority) {
+        GWT.log("update task in presenter");
 
         if (currentTaskId > 0) {
             List<String> descriptions = new ArrayList<String>();
@@ -183,7 +183,7 @@ public class TaskDetailsPresenter {
                     taskCalendarEvent.fire(new TaskCalendarEvent(currentTaskId));
                 }
             }).updateSimpleTaskDetails(currentTaskId, names, Integer.valueOf(priority), descriptions,
-                    // subTaskStrategy,
+            // subTaskStrategy,
                     dueDate);
 
         }
@@ -191,7 +191,7 @@ public class TaskDetailsPresenter {
     }
 
     public void refreshTask() {
-
+        GWT.log("refresh task in presenter");
         taskServices.call(new RemoteCallback<TaskSummary>() {
             @Override
             public void callback(TaskSummary details) {
@@ -251,7 +251,8 @@ public class TaskDetailsPresenter {
                 DateTimeFormat format = DateTimeFormat.getFormat("dd/MM/yyyy HH:mm");
                 for (TaskEventSummary tes : events) {
                     String timeStamp = format.format(tes.getLogTime());
-                    safeHtmlBuilder.appendEscapedLines(timeStamp + ": Task - " + tes.getType() + " (" + tes.getUserId() + ") \n");
+                    safeHtmlBuilder.appendEscapedLines(timeStamp + ": Task - " + tes.getType() + " (" + tes.getUserId()
+                            + ") \n");
                 }
                 view.getLogTextArea().setHTML(safeHtmlBuilder.toSafeHtml());
             }
@@ -259,9 +260,6 @@ public class TaskDetailsPresenter {
         }).getAllTaskEvents(currentTaskId);
 
     }
-    
-   
-        
 
     private void changeStyleRow(long idTask) {
         taskStyleEvent.fire(new TaskStyleEvent(idTask));
@@ -269,6 +267,7 @@ public class TaskDetailsPresenter {
 
     @OnOpen
     public void onOpen() {
+        GWT.log("onOpen in presenter");
         this.currentTaskId = Long.parseLong(place.getParameter("taskId", "0").toString());
         this.currentTaskName = place.getParameter("taskName", "");
         refreshTask();
@@ -279,8 +278,10 @@ public class TaskDetailsPresenter {
             refreshTask();
         }
     }
+
     @OnClose
     public void close() {
+        GWT.log("close in presenter");
         closePlaceEvent.fire(new BeforeClosePlaceEvent(this.place));
     }
 
