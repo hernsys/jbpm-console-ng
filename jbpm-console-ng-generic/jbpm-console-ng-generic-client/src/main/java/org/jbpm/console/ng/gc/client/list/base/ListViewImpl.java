@@ -39,12 +39,20 @@ public class ListViewImpl extends BaseViewImpl<TaskSummary, ListPresenter> imple
     /* left buttons */
     @Inject
     @DataField
-    public NavLink btnLeftNavLink;
+    public NavLink btnLeft1;
+    
+    @Inject
+    @DataField
+    public NavLink btnLeft2;
 
     /* right buttons */
     @Inject
     @DataField
-    public Button btnRightNavLink;
+    public Button btnRight1;
+    
+    @Inject
+    @DataField
+    public Button btnRight2;
 
     @Override
     public void init(ListPresenter presenter) {
@@ -59,14 +67,16 @@ public class ListViewImpl extends BaseViewImpl<TaskSummary, ListPresenter> imple
 
     @Override
     public void initializeLeftButtons() {
-        btnLeftNavLink.setText(constants.Grid());
-        btnLeftNavLink.setStyleName("btn btn-small active");
+        btnLeft1.setText("Left 1");
+        btnLeft2.setText("Left 2");
+        btnLeft1.setStyleName("active");
     }
 
     @Override
     public void initializeRightButtons() {
-        btnRightNavLink.setText(constants.Active());
-        btnRightNavLink.setStyleName("btn btn-small active");
+        btnRight1.setText("Right 1");
+        btnRight2.setText("Right 2");
+        btnRight1.setStyleName("btn btn-small active");
     }
 
     @Override

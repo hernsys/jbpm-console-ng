@@ -16,28 +16,31 @@
 
 package org.jbpm.console.ng.gc.client.list.base;
 
-import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import org.jboss.errai.ui.shared.api.annotations.DataField;
+import org.jbpm.console.ng.gc.client.i18n.Constants;
 import org.jbpm.console.ng.gc.client.util.DataGridUtils;
 import org.uberfire.client.mvp.PlaceManager;
 import org.uberfire.workbench.events.NotificationEvent;
 
 import com.github.gwtbootstrap.client.ui.DataGrid;
 import com.github.gwtbootstrap.client.ui.SimplePager;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
+import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.RequiresResize;
 import com.google.gwt.view.client.ListDataProvider;
 
-@Dependent
-public abstract class BaseViewImpl<T, P> extends ActionsCellTaskList implements GridViewContainer, ButtonsPanelContainer,
+public abstract class BaseViewImpl<T, P> extends Composite implements GridViewContainer, ButtonsPanelContainer,
         PagerContainer, RequiresResize {
 
+    protected static Constants constants = GWT.create(Constants.class);
+    
     protected P presenter;
     protected DataGrid<T> myListGrid;
     protected ListHandler<T> sortHandler;
@@ -76,7 +79,7 @@ public abstract class BaseViewImpl<T, P> extends ActionsCellTaskList implements 
         pager.setPageSize(DataGridUtils.pageSize);
 
         viewContainer.add(myListGrid);
-        myListGrid.setEmptyTableWidget(new HTMLPanel(constants.No_Tasks_Found()));
+        myListGrid.setEmptyTableWidget(new HTMLPanel(constants.No_Items_Found()));
 
         sortHandler = new ColumnSortEvent.ListHandler<T>(dataProvider.getList());
 
