@@ -19,14 +19,15 @@ package org.jbpm.console.ng.gc.client.list.base;
 import java.util.List;
 
 import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
 
 import org.jbpm.console.ng.ht.model.TaskSummary;
 import org.jbpm.console.ng.ht.model.events.TaskSearchEvent;
+import org.uberfire.client.annotations.WorkbenchMenu;
 import org.uberfire.client.annotations.WorkbenchPartTitle;
 import org.uberfire.client.annotations.WorkbenchPartView;
 import org.uberfire.client.annotations.WorkbenchScreen;
 import org.uberfire.client.mvp.UberView;
+import org.uberfire.workbench.model.menu.Menus;
 
 import com.google.common.collect.Lists;
 import com.google.gwt.i18n.client.Constants.DefaultStringValue;
@@ -36,12 +37,14 @@ import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 
 @Dependent
 @WorkbenchScreen(identifier = "Base List")
-public class ListPresenter extends BasePresenter<TaskSummary> {
-
-    @Inject
-    private ListViewImpl view;
+public class ListPresenter extends BasePresenter<TaskSummary, ListViewImpl> {
 
     public interface ListView extends UberView<ListPresenter> {
+    }
+
+    @WorkbenchMenu
+    public Menus getMenus() {
+        return menus;
     }
 
     @WorkbenchPartView
@@ -55,11 +58,9 @@ public class ListPresenter extends BasePresenter<TaskSummary> {
         return null;
     }
 
-    /**
-     * this method must invoke the services to get info to show in the grid
-     */
     @Override
     protected void refreshItems() {
+        // TODO it must call to getAll in backend Service
         allItemsSummaries = Lists.newArrayList();
         TaskSummary child = new TaskSummary();
         TaskSummary child2 = new TaskSummary();
@@ -73,16 +74,6 @@ public class ListPresenter extends BasePresenter<TaskSummary> {
         TaskSummary child10 = new TaskSummary();
         TaskSummary child11 = new TaskSummary();
         TaskSummary child12 = new TaskSummary();
-        TaskSummary child13 = new TaskSummary();
-        TaskSummary child14 = new TaskSummary();
-        TaskSummary child15 = new TaskSummary();
-        TaskSummary child16 = new TaskSummary();
-        TaskSummary child17 = new TaskSummary();
-        TaskSummary child18 = new TaskSummary();
-        TaskSummary child19 = new TaskSummary();
-        TaskSummary child20 = new TaskSummary();
-        TaskSummary child21 = new TaskSummary();
-        TaskSummary child22 = new TaskSummary();
         child.setId(1);
         child.setName("1 item");
         child2.setId(2);
@@ -107,26 +98,6 @@ public class ListPresenter extends BasePresenter<TaskSummary> {
         child11.setName("11 item");
         child12.setId(12);
         child12.setName("12 item");
-        child13.setId(13);
-        child13.setName("13 item");
-        child14.setId(14);
-        child14.setName("14 item");
-        child15.setId(15);
-        child15.setName("15 item");
-        child16.setId(16);
-        child16.setName("16 item");
-        child17.setId(17);
-        child17.setName("17 item");
-        child18.setId(18);
-        child18.setName("18 item");
-        child19.setId(19);
-        child19.setName("19 item");
-        child20.setId(20);
-        child20.setName("20 item");
-        child21.setId(21);
-        child21.setName("21 item");
-        child22.setId(22);
-        child22.setName("22 item");
         allItemsSummaries.add(child);
         allItemsSummaries.add(child2);
         allItemsSummaries.add(child3);
@@ -139,16 +110,6 @@ public class ListPresenter extends BasePresenter<TaskSummary> {
         allItemsSummaries.add(child10);
         allItemsSummaries.add(child11);
         allItemsSummaries.add(child12);
-        allItemsSummaries.add(child13);
-        allItemsSummaries.add(child14);
-        allItemsSummaries.add(child15);
-        allItemsSummaries.add(child16);
-        allItemsSummaries.add(child17);
-        allItemsSummaries.add(child18);
-        allItemsSummaries.add(child19);
-        allItemsSummaries.add(child20);
-        allItemsSummaries.add(child21);
-        allItemsSummaries.add(child22);
 
         filterItems(view.getCurrentFilter());
     }
@@ -187,6 +148,42 @@ public class ListPresenter extends BasePresenter<TaskSummary> {
     public void onSearchEvent(TaskSearchEvent searchEvent) {
         view.setCurrentFilter(searchEvent.getFilter());
         refreshItems();
+    }
+
+    @Override
+    protected void deleteItem(Long id) {
+        view.displayNotification("The item with ID:" + id + " was deleted.");
+        // TODO it must call to backend service to delete it
+        List<TaskSummary> mockList = Lists.newArrayList();
+        for (TaskSummary t : allItemsSummaries) {
+            if (t.getId() != id) {
+                mockList.add(t);
+            }
+        }
+        allItemsSummaries.clear();
+        allItemsSummaries.addAll(mockList);
+        // TODO this method must be called
+        // this.refreshItems();
+        filterItems(view.getCurrentFilter());
+
+    }
+
+    @Override
+    protected void createItem() {
+        // TODO Auto-generated method stub
+        view.displayNotification("TODO to create a new Item");
+    }
+
+    @Override
+    protected void updateItem(Long id) {
+        // TODO Auto-generated method stub
+        view.displayNotification("TODO update item with ID:" + id);
+    }
+
+    @Override
+    protected void readItem(Long id) {
+        // TODO Auto-generated method stub
+        view.displayNotification("TODO View item with ID:" + id);
     }
 
 }

@@ -40,7 +40,7 @@ public class ListViewImpl extends BaseViewImpl<TaskSummary, ListPresenter> imple
     @Inject
     @DataField
     public NavLink btnLeft1;
-    
+
     @Inject
     @DataField
     public NavLink btnLeft2;
@@ -49,7 +49,7 @@ public class ListViewImpl extends BaseViewImpl<TaskSummary, ListPresenter> imple
     @Inject
     @DataField
     public Button btnRight1;
-    
+
     @Inject
     @DataField
     public Button btnRight2;
@@ -57,12 +57,6 @@ public class ListViewImpl extends BaseViewImpl<TaskSummary, ListPresenter> imple
     @Override
     public void init(ListPresenter presenter) {
         super.initializeComponents(presenter, presenter.getDataProvider());
-    }
-
-    @Override
-    public void setSelectionModel() {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -95,7 +89,7 @@ public class ListViewImpl extends BaseViewImpl<TaskSummary, ListPresenter> imple
     public void initGridColumns() {
         this.idColumn();
         this.nameColumn();
-
+        super.actionsColumns();
     }
 
     private void idColumn() {
@@ -136,6 +130,27 @@ public class ListViewImpl extends BaseViewImpl<TaskSummary, ListPresenter> imple
     @Override
     public void refreshItems() {
         presenter.refreshItems();
+    }
+
+    @Override
+    protected void deleteItem(Long id) {
+        presenter.deleteItem(id);
+    }
+
+    @Override
+    protected void createItem() {
+        presenter.createItem();
+    }
+
+    @Override
+    protected void updateItem(Long id) {
+        presenter.updateItem(id);
+    }
+
+    @Override
+    protected void readItem(Long id) {
+        presenter.readItem(id);
+
     }
 
 }

@@ -135,7 +135,6 @@ public class TaskDetailsPresenter {
 
     @OnStartup
     public void onStartup(final PlaceRequest place) {
-        GWT.log("start up in presenter");
         this.place = place;
     }
 
@@ -166,7 +165,6 @@ public class TaskDetailsPresenter {
     public void updateTask(final String taskDescription, final String userId,
     // final String subTaskStrategy,
             final Date dueDate, final int priority) {
-        GWT.log("update task in presenter");
 
         if (currentTaskId > 0) {
             List<String> descriptions = new ArrayList<String>();
@@ -191,7 +189,6 @@ public class TaskDetailsPresenter {
     }
 
     public void refreshTask() {
-        GWT.log("refresh task in presenter");
         taskServices.call(new RemoteCallback<TaskSummary>() {
             @Override
             public void callback(TaskSummary details) {
@@ -267,7 +264,6 @@ public class TaskDetailsPresenter {
 
     @OnOpen
     public void onOpen() {
-        GWT.log("onOpen in presenter");
         this.currentTaskId = Long.parseLong(place.getParameter("taskId", "0").toString());
         this.currentTaskName = place.getParameter("taskName", "");
         refreshTask();
@@ -281,7 +277,6 @@ public class TaskDetailsPresenter {
 
     @OnClose
     public void close() {
-        GWT.log("close in presenter");
         closePlaceEvent.fire(new BeforeClosePlaceEvent(this.place));
     }
 

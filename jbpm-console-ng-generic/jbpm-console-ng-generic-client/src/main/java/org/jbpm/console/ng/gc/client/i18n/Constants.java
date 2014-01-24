@@ -172,4 +172,6 @@ public interface Constants extends Messages {
     String Provide_User_Or_Group();
     
     String No_Items_Found();
+    
+    String New_Item();
 }
