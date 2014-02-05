@@ -17,12 +17,14 @@
 package org.jbpm.console.ng.bd.model;
 
 import java.io.Serializable;
+
 import org.jboss.errai.common.client.api.annotations.Portable;
+import org.jbpm.console.ng.ht.model.GenericSummary;
 
 @Portable
-public class DeploymentUnitSummary implements Serializable {
+public class DeploymentUnitSummary extends GenericSummary implements Serializable {
 
-    private String id;
+    private static final long serialVersionUID = 6584282551560911624L;
     private String type;
 
     public DeploymentUnitSummary() {
@@ -34,7 +36,7 @@ public class DeploymentUnitSummary implements Serializable {
     }
 
     public String getId() {
-        return id;
+        return (String) id;
     }
 
     public void setId(String id) {

@@ -18,91 +18,67 @@ package org.jbpm.console.ng.bd.client.editors.deployment.list;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.PostConstruct;
+
 import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.view.client.HasData;
-import com.google.gwt.view.client.ListDataProvider;
 import org.jboss.errai.bus.client.api.messaging.Message;
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.common.client.api.ErrorCallback;
 import org.jboss.errai.common.client.api.RemoteCallback;
 import org.jbpm.console.ng.bd.client.i18n.Constants;
 import org.jbpm.console.ng.bd.model.KModuleDeploymentUnitSummary;
-import org.jbpm.console.ng.bd.model.events.DeploymentsSearchEvent;
 import org.jbpm.console.ng.bd.service.DeploymentManagerEntryPoint;
+import org.jbpm.console.ng.gc.client.list.base.BasePresenter;
+import org.jbpm.console.ng.ht.model.events.SearchEvent;
 import org.kie.workbench.common.widgets.client.search.ClearSearchEvent;
 import org.uberfire.client.annotations.WorkbenchMenu;
 import org.uberfire.client.annotations.WorkbenchPartTitle;
 import org.uberfire.client.annotations.WorkbenchPartView;
 import org.uberfire.client.annotations.WorkbenchScreen;
-import org.uberfire.client.mvp.PlaceManager;
 import org.uberfire.client.mvp.UberView;
 import org.uberfire.lifecycle.OnOpen;
-import org.uberfire.mvp.Command;
 import org.uberfire.mvp.PlaceRequest;
 import org.uberfire.mvp.impl.DefaultPlaceRequest;
-import org.uberfire.workbench.model.menu.MenuFactory;
 import org.uberfire.workbench.model.menu.Menus;
+
+import com.google.gwt.core.client.GWT;
 
 @Dependent
 @WorkbenchScreen(identifier = "Deployments List")
-public class DeploymentUnitsListPresenter {
+public class DeploymentUnitsListPresenter extends BasePresenter<KModuleDeploymentUnitSummary, DeploymentUnitsListViewImpl> {
 
     public interface DeploymentUnitsListView extends UberView<DeploymentUnitsListPresenter> {
-
-        void displayNotification( String text );
 
         void showBusyIndicator( String message );
 
         void hideBusyIndicator();
 
-        String getCurrentFilter();
-
-        void setCurrentFilter( String filter );
     }
-
-    @Inject
-    private PlaceManager placeManager;
-
-    private Menus menus;
-
-    @Inject
-    private DeploymentUnitsListView view;
-
-    @Inject
-    private Caller<DeploymentManagerEntryPoint> deploymentManager;
-
-    private Constants constants = GWT.create( Constants.class );
-
-    private ListDataProvider<KModuleDeploymentUnitSummary> dataProvider = new ListDataProvider<KModuleDeploymentUnitSummary>();
-
-    private List<KModuleDeploymentUnitSummary> currentDeployedUnits;
-
-    @Inject
-    private Event<ClearSearchEvent> clearSearchEvent;
-
-    public DeploymentUnitsListPresenter() {
-        makeMenuBar();
+    
+    @WorkbenchMenu
+    public Menus getMenus() {
+        return menus;
     }
-
+    
+    @WorkbenchPartView
+    public UberView<DeploymentUnitsListPresenter> getView() {
+        return view;
+    }
+    
     @WorkbenchPartTitle
     public String getTitle() {
         return constants.Deployment_Units();
     }
 
-    @WorkbenchPartView
-    public UberView<DeploymentUnitsListPresenter> getView() {
-        return view;
-    }
+    @Inject
+    private Caller<DeploymentManagerEntryPoint> deploymentManager;
+    
+    @Inject
+    private Event<ClearSearchEvent> clearSearchEvent;
 
-    @PostConstruct
-    public void init() {
-    }
+    private Constants constants = GWT.create( Constants.class );
 
     public void undeployUnit( final String id,
                               final String group,
@@ -116,7 +92,7 @@ public class DeploymentUnitsListPresenter {
                                     public void callback( Void nothing ) {
                                         view.hideBusyIndicator();
                                         view.displayNotification( " Kjar Undeployed " + group + ":" + artifact + ":" + version );
-                                        refreshDeployedUnits();
+                                        refreshItems();
                                     }
                                 }, new ErrorCallback<Message>() {
                                     @Override
@@ -130,17 +106,38 @@ public class DeploymentUnitsListPresenter {
                               ).undeploy( new KModuleDeploymentUnitSummary( id, group, artifact, version, kbaseName, kieSessionName, null ) );
     }
 
-    public void filterDeployedUnits( String filter ) {
+    @OnOpen
+    public void onOpen() {
+        super.NEW_ITEM_MENU = constants.New_Deployment_Unit();
+        refreshItems();
+    }
+
+    @Override
+    public void refreshItems() {
+        view.setCurrentFilter( "" );
+        deploymentManager.call( new RemoteCallback<List<KModuleDeploymentUnitSummary>>() {
+            @Override
+            public void callback( List<KModuleDeploymentUnitSummary> units ) {
+                allItemsSummaries = units;
+                filterItems( view.getCurrentFilter() );
+                clearSearchEvent.fire( new ClearSearchEvent() );
+            }
+        } ).getDeploymentUnits();
+
+    }
+    
+    @Override
+    public void filterItems( String filter ) {
         if ( filter.equals( "" ) ) {
-            if ( currentDeployedUnits != null ) {
+            if ( allItemsSummaries != null ) {
                 dataProvider.getList().clear();
-                dataProvider.getList().addAll( new ArrayList<KModuleDeploymentUnitSummary>( currentDeployedUnits ) );
+                dataProvider.getList().addAll( new ArrayList<KModuleDeploymentUnitSummary>( allItemsSummaries ) );
                 dataProvider.refresh();
 
             }
         } else {
-            if ( currentDeployedUnits != null ) {
-                List<KModuleDeploymentUnitSummary> deployedUnits = new ArrayList<KModuleDeploymentUnitSummary>( currentDeployedUnits );
+            if ( allItemsSummaries != null ) {
+                List<KModuleDeploymentUnitSummary> deployedUnits = new ArrayList<KModuleDeploymentUnitSummary>( allItemsSummaries );
                 List<KModuleDeploymentUnitSummary> filteredDeployedUnits = new ArrayList<KModuleDeploymentUnitSummary>();
                 for ( KModuleDeploymentUnitSummary ps : deployedUnits ) {
                     if ( ps.getArtifactId().toLowerCase().contains( filter.toLowerCase() )
@@ -156,74 +153,42 @@ public class DeploymentUnitsListPresenter {
 
     }
 
-    public void refreshDeployedUnits() {
-
-        deploymentManager.call( new RemoteCallback<List<KModuleDeploymentUnitSummary>>() {
-            @Override
-            public void callback( List<KModuleDeploymentUnitSummary> units ) {
-                currentDeployedUnits = units;
-                filterDeployedUnits( view.getCurrentFilter() );
-                clearSearchEvent.fire( new ClearSearchEvent() );
-            }
-        } ).getDeploymentUnits();
-
-    }
-
-    public void addDataDisplay( HasData<KModuleDeploymentUnitSummary> display ) {
-        dataProvider.addDataDisplay( display );
-    }
-
-    public ListDataProvider<KModuleDeploymentUnitSummary> getDataProvider() {
-        return dataProvider;
-    }
-
-    public void refreshData() {
-        dataProvider.refresh();
-    }
-
-    @OnOpen
-    public void onOpen() {
-        refreshDeployedUnits();
-    }
-
-    @WorkbenchMenu
-    public Menus getMenus() {
-        return menus;
-    }
-
-    private void makeMenuBar() {
-        menus = MenuFactory
-                .newTopLevelMenu( constants.New_Deployment_Unit() )
-                .respondsWith( new Command() {
-                    @Override
-                    public void execute() {
-                        PlaceRequest placeRequestImpl = new DefaultPlaceRequest( "New Deployment" );
-                        placeManager.goTo( placeRequestImpl );
-                    }
-                } )
-                .endMenu()
-                .newTopLevelMenu( constants.Refresh() )
-                .respondsWith( new Command() {
-                    @Override
-                    public void execute() {
-                        refreshDeployedUnits();
-                        view.setCurrentFilter( "" );
-                        view.displayNotification( constants.Deployed_Units_Refreshed() );
-                    }
-                } )
-                .endMenu().build();
-
-    }
-
-    public void onSearchEvent( @Observes final DeploymentsSearchEvent searchEvent ) {
+    @Override
+    protected void onSearchEvent(SearchEvent searchEvent) {
         view.setCurrentFilter( searchEvent.getFilter() );
         deploymentManager.call( new RemoteCallback<List<KModuleDeploymentUnitSummary>>() {
             @Override
             public void callback( List<KModuleDeploymentUnitSummary> units ) {
-                currentDeployedUnits = units;
-                filterDeployedUnits( view.getCurrentFilter() );
+                allItemsSummaries = units;
+                filterItems( view.getCurrentFilter() );
             }
         } ).getDeploymentUnits();
+        
+    }
+
+    @Override
+    protected void createItem() {
+        PlaceRequest placeRequestImpl = new DefaultPlaceRequest( "New Deployment" );
+        placeManager.goTo( placeRequestImpl );
+        
+    }
+
+    @Override
+    protected void readItem(Long id) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    protected void updateItem(Long id) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    protected void deleteItem(Long id) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

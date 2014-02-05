@@ -23,7 +23,7 @@ import javax.inject.Inject;
 
 import org.jbpm.console.ng.gc.client.i18n.Constants;
 import org.jbpm.console.ng.ht.model.GenericSummary;
-import org.jbpm.console.ng.ht.model.events.TaskSearchEvent;
+import org.jbpm.console.ng.ht.model.events.SearchEvent;
 import org.uberfire.client.mvp.PlaceManager;
 import org.uberfire.mvp.Command;
 import org.uberfire.workbench.model.menu.MenuFactory;
@@ -47,8 +47,14 @@ public abstract class BasePresenter<T extends GenericSummary, V> extends BaseGen
     protected static Constants constants = GWT.create(Constants.class);
 
     protected ListDataProvider<T> dataProvider = new ListDataProvider<T>();
+    
     protected List<T> allItemsSummaries;
+    
+    //menu
     protected Menus menus;
+    protected String NEW_ITEM_MENU = constants.New_Item();
+    protected String REFRESH_ITEM_MENU = constants.Refresh();
+    
 
     @Inject
     protected PlaceManager placeManager;
@@ -60,23 +66,27 @@ public abstract class BasePresenter<T extends GenericSummary, V> extends BaseGen
 
     protected abstract void filterItems(String text);
 
-    protected abstract void onSearchEvent(@Observes final TaskSearchEvent searchEvent);
+    protected abstract void onSearchEvent(@Observes final SearchEvent searchEvent);
 
-    protected void addDataDisplay(HasData<T> display) {
+    public void addDataDisplay(HasData<T> display) {
         dataProvider.addDataDisplay(display);
     }
 
-    protected ListDataProvider<T> getDataProvider() {
+    public ListDataProvider<T> getDataProvider() {
         return dataProvider;
+    }
+    
+    protected void refreshData() {
+        dataProvider.refresh();
     }
 
     protected void makeMenuBar() {
-        menus = MenuFactory.newTopLevelMenu(constants.New_Item()).respondsWith(new Command() {
+        menus = MenuFactory.newTopLevelMenu(NEW_ITEM_MENU).respondsWith(new Command() {
             @Override
             public void execute() {
                 createItem();
             }
-        }).endMenu().newTopLevelMenu(constants.Refresh()).respondsWith(new Command() {
+        }).endMenu().newTopLevelMenu(REFRESH_ITEM_MENU).respondsWith(new Command() {
             @Override
             public void execute() {
                 refreshItems();

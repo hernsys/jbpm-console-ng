@@ -16,11 +16,22 @@
 
 package org.jbpm.console.ng.gc.client.list.base;
 
-public interface GridViewContainer {
+import java.util.Set;
+
+import com.google.gwt.view.client.SelectionChangeEvent;
+
+public interface GridViewContainer<T> {
 
     static final String GRID_STYLE = "table table-bordered table-striped table-hover";
+    
+    enum GridSelectionModel {
+        SIMPLE, MULTI;
+    }
 
-    void setSelectionModel();
+    //selection model
+    void setSelectionModel(GridSelectionModel selectionModel);
+    void onSelectionModelChange(SelectionChangeEvent event, Set<T> selectedItemsSelectionModel);
+    
 
     void setGridEvents();
 

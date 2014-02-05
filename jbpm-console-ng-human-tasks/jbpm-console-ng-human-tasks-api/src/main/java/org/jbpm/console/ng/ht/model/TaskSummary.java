@@ -18,6 +18,7 @@ package org.jbpm.console.ng.ht.model;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+
 import org.jboss.errai.common.client.api.annotations.Portable;
 
 @Portable
@@ -71,6 +72,22 @@ public class TaskSummary extends GenericSummary implements Serializable {
     }
 
     public TaskSummary() {
+    }
+    
+    public Long getId() {
+        return (Long) id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public long getProcessInstanceId() {
@@ -202,100 +219,6 @@ public class TaskSummary extends GenericSummary implements Serializable {
     }
 
     @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 17 * hash + (int) (this.id ^ (this.id >>> 32));
-        hash = 17 * hash + (this.name != null ? this.name.hashCode() : 0);
-        hash = 17 * hash + (this.subject != null ? this.subject.hashCode() : 0);
-        hash = 17 * hash + (this.description != null ? this.description.hashCode() : 0);
-        hash = 17 * hash + (this.status != null ? this.status.hashCode() : 0);
-        hash = 17 * hash + this.priority;
-        hash = 17 * hash + this.parentId;
-        hash = 17 * hash + (this.skipable ? 1 : 0);
-        hash = 17 * hash + (this.actualOwner != null ? this.actualOwner.hashCode() : 0);
-        hash = 17 * hash + (this.createdBy != null ? this.createdBy.hashCode() : 0);
-        hash = 17 * hash + (this.createdOn != null ? this.createdOn.hashCode() : 0);
-        hash = 17 * hash + (this.activationTime != null ? this.activationTime.hashCode() : 0);
-        hash = 17 * hash + (this.expirationTime != null ? this.expirationTime.hashCode() : 0);
-        hash = 17 * hash + (int) (this.processInstanceId ^ (this.processInstanceId >>> 32));
-        hash = 17 * hash + (this.processId != null ? this.processId.hashCode() : 0);
-        hash = 17 * hash + this.processSessionId;
-        hash = 17 * hash + (this.subTaskStrategy != null ? this.subTaskStrategy.hashCode() : 0);
-        hash = 17 * hash + (this.potentialOwners != null ? this.potentialOwners.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final TaskSummary other = (TaskSummary) obj;
-        if (this.id != other.id) {
-            return false;
-        }
-        if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
-            return false;
-        }
-        if ((this.subject == null) ? (other.subject != null) : !this.subject.equals(other.subject)) {
-            return false;
-        }
-        if ((this.description == null) ? (other.description != null) : !this.description.equals(other.description)) {
-            return false;
-        }
-        if ((this.status == null) ? (other.status != null) : !this.status.equals(other.status)) {
-            return false;
-        }
-        if (this.priority != other.priority) {
-            return false;
-        }
-        if (this.parentId != other.parentId) {
-            return false;
-        }
-        if (this.skipable != other.skipable) {
-            return false;
-        }
-        if ((this.actualOwner == null) ? (other.actualOwner != null) : !this.actualOwner.equals(other.actualOwner)) {
-            return false;
-        }
-        if ((this.createdBy == null) ? (other.createdBy != null) : !this.createdBy.equals(other.createdBy)) {
-            return false;
-        }
-        if (this.createdOn != other.createdOn && (this.createdOn == null || !this.createdOn.equals(other.createdOn))) {
-            return false;
-        }
-        if (this.activationTime != other.activationTime
-                && (this.activationTime == null || !this.activationTime.equals(other.activationTime))) {
-            return false;
-        }
-        if (this.expirationTime != other.expirationTime
-                && (this.expirationTime == null || !this.expirationTime.equals(other.expirationTime))) {
-            return false;
-        }
-        if (this.processInstanceId != other.processInstanceId) {
-            return false;
-        }
-        if ((this.processId == null) ? (other.processId != null) : !this.processId.equals(other.processId)) {
-            return false;
-        }
-        if (this.processSessionId != other.processSessionId) {
-            return false;
-        }
-        if ((this.subTaskStrategy == null) ? (other.subTaskStrategy != null) : !this.subTaskStrategy
-                .equals(other.subTaskStrategy)) {
-            return false;
-        }
-        if (this.potentialOwners != other.potentialOwners
-                && (this.potentialOwners == null || !this.potentialOwners.equals(other.potentialOwners))) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
     public String toString() {
         return "TaskSummary{" + "id=" + id + ", name=" + name + ", subject=" + subject + ", description=" + description
                 + ", status=" + status + ", priority=" + priority + ", parentId=" + parentId + ", skipable=" + skipable
@@ -303,6 +226,106 @@ public class TaskSummary extends GenericSummary implements Serializable {
                 + ", activationTime=" + activationTime + ", expirationTime=" + expirationTime + ", processInstanceId="
                 + processInstanceId + ", processId=" + processId + ", processSessionId=" + processSessionId
                 + ", subTaskStrategy=" + subTaskStrategy + ", potentialOwners=" + potentialOwners + '}';
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((activationTime == null) ? 0 : activationTime.hashCode());
+        result = prime * result + ((actualOwner == null) ? 0 : actualOwner.hashCode());
+        result = prime * result + ((createdBy == null) ? 0 : createdBy.hashCode());
+        result = prime * result + ((createdOn == null) ? 0 : createdOn.hashCode());
+        result = prime * result + ((description == null) ? 0 : description.hashCode());
+        result = prime * result + ((expirationTime == null) ? 0 : expirationTime.hashCode());
+        result = prime * result + parentId;
+        result = prime * result + ((potentialOwners == null) ? 0 : potentialOwners.hashCode());
+        result = prime * result + priority;
+        result = prime * result + ((processId == null) ? 0 : processId.hashCode());
+        result = prime * result + (int) (processInstanceId ^ (processInstanceId >>> 32));
+        result = prime * result + processSessionId;
+        result = prime * result + (skipable ? 1231 : 1237);
+        result = prime * result + ((status == null) ? 0 : status.hashCode());
+        result = prime * result + ((subTaskStrategy == null) ? 0 : subTaskStrategy.hashCode());
+        result = prime * result + ((subject == null) ? 0 : subject.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        TaskSummary other = (TaskSummary) obj;
+        if (activationTime == null) {
+            if (other.activationTime != null)
+                return false;
+        } else if (!activationTime.equals(other.activationTime))
+            return false;
+        if (actualOwner == null) {
+            if (other.actualOwner != null)
+                return false;
+        } else if (!actualOwner.equals(other.actualOwner))
+            return false;
+        if (createdBy == null) {
+            if (other.createdBy != null)
+                return false;
+        } else if (!createdBy.equals(other.createdBy))
+            return false;
+        if (createdOn == null) {
+            if (other.createdOn != null)
+                return false;
+        } else if (!createdOn.equals(other.createdOn))
+            return false;
+        if (description == null) {
+            if (other.description != null)
+                return false;
+        } else if (!description.equals(other.description))
+            return false;
+        if (expirationTime == null) {
+            if (other.expirationTime != null)
+                return false;
+        } else if (!expirationTime.equals(other.expirationTime))
+            return false;
+        if (parentId != other.parentId)
+            return false;
+        if (potentialOwners == null) {
+            if (other.potentialOwners != null)
+                return false;
+        } else if (!potentialOwners.equals(other.potentialOwners))
+            return false;
+        if (priority != other.priority)
+            return false;
+        if (processId == null) {
+            if (other.processId != null)
+                return false;
+        } else if (!processId.equals(other.processId))
+            return false;
+        if (processInstanceId != other.processInstanceId)
+            return false;
+        if (processSessionId != other.processSessionId)
+            return false;
+        if (skipable != other.skipable)
+            return false;
+        if (status == null) {
+            if (other.status != null)
+                return false;
+        } else if (!status.equals(other.status))
+            return false;
+        if (subTaskStrategy == null) {
+            if (other.subTaskStrategy != null)
+                return false;
+        } else if (!subTaskStrategy.equals(other.subTaskStrategy))
+            return false;
+        if (subject == null) {
+            if (other.subject != null)
+                return false;
+        } else if (!subject.equals(other.subject))
+            return false;
+        return true;
     }
 
 }

@@ -22,22 +22,24 @@ public class GenericSummary implements Serializable {
 
     private static final long serialVersionUID = -8709434225517887911L;
 
-    protected long id;
+    protected Object id;
     protected String name;
-
-    public long getId() {
+    
+    public Object getId() {
         return id;
     }
-
-    public void setId(long id) {
+    public void setId(Object id) {
         this.id = id;
     }
-
+    
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
+    
+    
+
+    
 }

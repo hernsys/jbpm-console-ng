@@ -21,6 +21,7 @@ import org.jboss.errai.common.client.api.annotations.Portable;
 @Portable
 public class KModuleDeploymentUnitSummary extends DeploymentUnitSummary {
 
+    private static final long serialVersionUID = 3208375669317804514L;
     private String groupId;
     private String artifactId;
     private String version;
@@ -93,5 +94,5 @@ public class KModuleDeploymentUnitSummary extends DeploymentUnitSummary {
     public void setStrategy(String strategy) {
         this.strategy = strategy;
     }
-
+    
 }

@@ -23,12 +23,12 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import org.jboss.errai.ui.shared.api.annotations.DataField;
-import org.jbpm.console.ng.gc.client.i18n.Constants;
 import org.jbpm.console.ng.gc.client.util.DataGridUtils;
 import org.jbpm.console.ng.gc.client.util.DataGridUtils.ActionsCRUD;
 import org.jbpm.console.ng.gc.client.util.ResizableHeader;
 import org.jbpm.console.ng.ht.model.GenericSummary;
 import org.uberfire.client.mvp.PlaceManager;
+import org.uberfire.security.Identity;
 import org.uberfire.workbench.events.NotificationEvent;
 
 import com.github.gwtbootstrap.client.ui.DataGrid;
@@ -36,26 +36,31 @@ import com.github.gwtbootstrap.client.ui.SimplePager;
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.cell.client.CompositeCell;
 import com.google.gwt.cell.client.HasCell;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.RequiresResize;
+import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
 
-public abstract class BaseViewImpl<T extends GenericSummary, P> extends GenericActions<T> implements GridViewContainer,
+public abstract class BaseViewImpl<T extends GenericSummary, P> extends GenericActions<T> implements GridViewContainer<T>,
         ButtonsPanelContainer, PagerContainer, RequiresResize {
 
-    protected static Constants constants = GWT.create(Constants.class);
-
     protected P presenter;
-    protected DataGrid<T> myListGrid;
+
+    @Inject
+    protected Identity identity;
+
+    protected DataGrid<T> listGrid;
+
     protected ListHandler<T> sortHandler;
+
     private String currentFilter = "";
 
     @Inject
@@ -73,47 +78,57 @@ public abstract class BaseViewImpl<T extends GenericSummary, P> extends GenericA
 
     @Inject
     protected PlaceManager placeManager;
+    
+    
+    //msjs
+    protected String NO_ITEMS_FOUND = genericConstants.No_Items_Found();
+    
+    
+    
+    
+    
 
-    protected void initializeComponents(P presenter, ListDataProvider<T> dataProvider) {
+    protected void initializeComponents(P presenter, ListDataProvider<T> dataProvider, GridSelectionModel gridSelectionModel) {
         this.presenter = presenter;
-        this.initializeGridView(dataProvider);
+        this.initializeGridView(dataProvider, gridSelectionModel);
         this.initializeLeftButtons();
         this.initializeRightButtons();
     }
 
-    protected void initializeGridView(ListDataProvider<T> dataProvider) {
+    protected void initializeGridView(ListDataProvider<T> dataProvider, GridSelectionModel gridSelectionModel) {
         viewContainer.clear();
 
-        myListGrid = new DataGrid<T>();
-        myListGrid.setStyleName(GRID_STYLE);
+        listGrid = new DataGrid<T>();
+        listGrid.setStyleName(GRID_STYLE);
 
-        pager.setDisplay(myListGrid);
+        pager.setDisplay(listGrid);
+        pager.setStyleName("pagination pagination-right pull-right");
         pager.setPageSize(DataGridUtils.pageSize);
 
-        viewContainer.add(myListGrid);
-        myListGrid.setEmptyTableWidget(new HTMLPanel(constants.No_Items_Found()));
+        viewContainer.add(listGrid);
+        listGrid.setEmptyTableWidget(new HTMLPanel(NO_ITEMS_FOUND));
 
         sortHandler = new ColumnSortEvent.ListHandler<T>(dataProvider.getList());
 
-        myListGrid.getColumnSortList().setLimit(1);
+        listGrid.getColumnSortList().setLimit(1);
 
-        this.setSelectionModel();
+        this.setSelectionModel(gridSelectionModel);
         this.setGridEvents();
         this.initGridColumns();
 
-        myListGrid.addColumnSortHandler(sortHandler);
+        listGrid.addColumnSortHandler(sortHandler);
 
-        dataProvider.addDataDisplay(myListGrid);
+        dataProvider.addDataDisplay(listGrid);
 
         this.refreshItems();
     }
 
-    protected void displayNotification(String text) {
+    public void displayNotification(String text) {
         notification.fire(new NotificationEvent(text));
     }
 
     protected DataGrid<T> getListGrid() {
-        return myListGrid;
+        return listGrid;
     }
 
     @Override
@@ -125,38 +140,41 @@ public abstract class BaseViewImpl<T extends GenericSummary, P> extends GenericA
 
     }
 
-    protected String getCurrentFilter() {
+    public String getCurrentFilter() {
         return currentFilter;
     }
 
-    protected void setCurrentFilter(String currentFilter) {
+    public void setCurrentFilter(String currentFilter) {
         this.currentFilter = currentFilter;
     }
-
+    
     protected void actionsColumns() {
         List<HasCell<T, ?>> cells = new LinkedList<HasCell<T, ?>>();
 
-        cells.add(new ReadHasCell(ActionsCRUD.READ.getDescription(), new ActionCell.Delegate<T>() {
+        cells.add(new ReadActionHasCell(ActionsCRUD.READ.getDescription(), new ActionCell.Delegate<T>() {
             @Override
             public void execute(T item) {
-                DataGridUtils.paintRowSelected(myListGrid, item.getId());
-                readItem(item.getId());
+                Long id = (Long) item.getId();
+                DataGridUtils.paintRowSelected(listGrid, id);
+                readItem(id);
             }
         }));
 
-        cells.add(new UpdateHasCell(ActionsCRUD.UPDATE.getDescription(), new ActionCell.Delegate<T>() {
+        cells.add(new UpdateActionHasCell(ActionsCRUD.UPDATE.getDescription(), new ActionCell.Delegate<T>() {
             @Override
             public void execute(T item) {
-                DataGridUtils.paintRowSelected(myListGrid, item.getId());
-                updateItem(item.getId());
+                Long id = (Long) item.getId();
+                DataGridUtils.paintRowSelected(listGrid, id);
+                updateItem(id);
             }
         }));
 
-        cells.add(new DeleteHasCell(ActionsCRUD.DELETE.getDescription(), new ActionCell.Delegate<T>() {
+        cells.add(new DeleteActionHasCell(ActionsCRUD.DELETE.getDescription(), new ActionCell.Delegate<T>() {
             @Override
             public void execute(T item) {
-                DataGridUtils.paintRowSelected(myListGrid, item.getId());
-                deleteItem(item.getId());
+                Long id = (Long) item.getId();
+                DataGridUtils.paintRowSelected(listGrid, id);
+                deleteItem(id);
             }
         }));
 
@@ -167,24 +185,48 @@ public abstract class BaseViewImpl<T extends GenericSummary, P> extends GenericA
                 return object;
             }
         };
-        myListGrid.addColumn(actionsColumn, new ResizableHeader(constants.Actions(), myListGrid, actionsColumn));
-        myListGrid.setColumnWidth(actionsColumn, "120px");
+        listGrid.addColumn(actionsColumn, new ResizableHeader(genericConstants.Actions(), listGrid, actionsColumn));
+        listGrid.setColumnWidth(actionsColumn, "120px");
     }
 
     @Override
-    public void setSelectionModel() {
+    public void setSelectionModel(GridSelectionModel gridSelectionModel) {
+        switch (gridSelectionModel){
+        case SIMPLE:
+            setSimpleSelectionModel();
+            break;
+        case MULTI:
+            setMultiSelectionModel();
+            break;
+        }
+        
+
+    }
+    
+    private void setSimpleSelectionModel(){
         final SingleSelectionModel<T> selectionModel = new SingleSelectionModel<T>();
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 T item = selectionModel.getSelectedObject();
                 if (item != null) {
-                    DataGridUtils.paintRowSelected(myListGrid, item.getId());
+                    DataGridUtils.paintRowSelected(listGrid, (Long)item.getId());
                 }
             }
         });
-        myListGrid.setSelectionModel((SelectionModel<? super T>) selectionModel);
+        listGrid.setSelectionModel((SelectionModel<? super T>) selectionModel);
+    }
+    
+    private void setMultiSelectionModel(){
+        final MultiSelectionModel<T> selectionModel = new MultiSelectionModel<T>();
+        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+                onSelectionModelChange(event, selectionModel.getSelectedSet());
+            }
+        });
 
+        listGrid.setSelectionModel(selectionModel, DefaultSelectionEventManager.<T>createCheckboxManager());
     }
 
 }

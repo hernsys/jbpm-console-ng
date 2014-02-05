@@ -22,14 +22,14 @@ import org.jboss.errai.common.client.api.annotations.Portable;
  * @author salaboy
  */
 @Portable
-public class TaskSearchEvent {
+public class SearchEvent {
     private String filter;
 
-    public TaskSearchEvent(String filter) {
+    public SearchEvent(String filter) {
         this.filter = filter;
     }
 
-    public TaskSearchEvent() {
+    public SearchEvent() {
     }
 
     public String getFilter() {
