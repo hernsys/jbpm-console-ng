@@ -26,14 +26,13 @@ import javax.enterprise.event.Observes;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 import org.jbpm.console.ng.bd.client.i18n.Constants;
 import org.jbpm.console.ng.bd.client.resources.BusinessDomainImages;
-import org.jbpm.console.ng.bd.client.util.DataGridUtils;
 import org.jbpm.console.ng.bd.client.util.ResizableHeader;
 import org.jbpm.console.ng.bd.model.KModuleDeploymentUnitSummary;
 import org.jbpm.console.ng.bd.model.events.DeployedUnitChangedEvent;
 import org.jbpm.console.ng.gc.client.list.base.BaseViewImpl;
+import org.jbpm.console.ng.gc.client.util.DataGridUtils;
 import org.uberfire.client.common.BusyPopup;
 
-import com.github.gwtbootstrap.client.ui.SimplePager;
 import com.google.gwt.cell.client.ActionCell.Delegate;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.CompositeCell;
@@ -42,7 +41,6 @@ import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.view.client.SelectionChangeEvent;
 
@@ -53,18 +51,16 @@ public class DeploymentUnitsListViewImpl extends BaseViewImpl<KModuleDeploymentU
 
     private static final String DEPLOYMENT_CONFIRM = "Are you sure that you want to undeploy the deployment unit?";
 
+    private static final String ALL_DEPLOYMENT_CONFIRM = "Are you sure that you want to undeploy all the deployments selected?";
+
     private Constants constants = GWT.create(Constants.class);
 
     private BusinessDomainImages images = GWT.create(BusinessDomainImages.class);
 
-    public DeploymentUnitsListViewImpl() {
-        pager = new SimplePager(SimplePager.TextLocation.CENTER, false, true);
-    }
-
     @Override
     public void init(final DeploymentUnitsListPresenter presenter) {
         super.DELETE_ACTION_IMAGE = images.undeployGridIcon();
-        super.NO_ITEMS_FOUND = constants.No_Deployment_Units_Available();
+        super.MSJ_NO_ITEMS_FOUND = constants.No_Deployment_Units_Available();
         super.initializeComponents(presenter, presenter.getDataProvider(), GridSelectionModel.MULTI);
     }
 
@@ -78,7 +74,6 @@ public class DeploymentUnitsListViewImpl extends BaseViewImpl<KModuleDeploymentU
         this.ksessionColumn();
         this.strategyColumn();
         this.actionsColumn();
-
     }
 
     private void idColumn() {
@@ -284,9 +279,20 @@ public class DeploymentUnitsListViewImpl extends BaseViewImpl<KModuleDeploymentU
         cells.add(new DeleteActionHasCell(constants.Undeploy(), new Delegate<KModuleDeploymentUnitSummary>() {
             @Override
             public void execute(KModuleDeploymentUnitSummary unit) {
-                if (Window.confirm(DEPLOYMENT_CONFIRM)) {
-                    presenter.undeployUnit(unit.getId(), unit.getGroupId(), unit.getArtifactId(), unit.getVersion(),
-                            unit.getKbaseName(), unit.getKsessionName());
+                if (itemsSelected != null && itemsSelected.size() > 1) {
+                    if (Window.confirm(ALL_DEPLOYMENT_CONFIRM)) {
+                        for (KModuleDeploymentUnitSummary item : itemsSelected) {
+                            //TODO it should call a new method with a List param
+                            presenter.undeployUnit(item.getId(), item.getGroupId(), item.getArtifactId(), item.getVersion(),
+                                    item.getKbaseName(), item.getKsessionName());
+                        }
+                        setMultiSelectionModel();
+                    }
+                } else {
+                    if (Window.confirm(DEPLOYMENT_CONFIRM)) {
+                        presenter.undeployUnit(unit.getId(), unit.getGroupId(), unit.getArtifactId(), unit.getVersion(),
+                                unit.getKbaseName(), unit.getKsessionName());
+                    }
                 }
 
             }
@@ -317,70 +323,42 @@ public class DeploymentUnitsListViewImpl extends BaseViewImpl<KModuleDeploymentU
     public void hideBusyIndicator() {
         BusyPopup.close();
     }
-
-    public ListHandler<KModuleDeploymentUnitSummary> getSortHandler() {
-        return sortHandler;
-    }
-
-    @Override
-    public void onSelectionModelChange(SelectionChangeEvent event, Set<KModuleDeploymentUnitSummary> selectedKieSession) {
-        for (KModuleDeploymentUnitSummary unit : selectedKieSession) {
-            //
-        }
-
-    }
-
+    
     @Override
     public void refreshItems() {
         presenter.refreshItems();
     }
 
     @Override
-    public void setGridEvents() {
+    public void multiSelectionModelChange(SelectionChangeEvent event, Set<KModuleDeploymentUnitSummary> selectedKieSession) {
+        for (KModuleDeploymentUnitSummary unit : selectedKieSession) {
+            //
+        }
+    }
+
+    @Override
+    public void simpleSelectionModelChange(SelectionChangeEvent event, KModuleDeploymentUnitSummary selectedItemSelectionModel) {
         // TODO Auto-generated method stub
 
+    }
+
+    @Override
+    public void setGridEvents() {
+        // TODO Auto-generated method stub
     }
 
     @Override
     public void initializeLeftButtons() {
         // TODO Auto-generated method stub
-
     }
 
     @Override
     public void initializeRightButtons() {
         // TODO Auto-generated method stub
-
     }
 
     @Override
     public void addHandlerPager() {
         // TODO Auto-generated method stub
-
     }
-
-    @Override
-    protected void createItem() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    protected void readItem(Long id) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    protected void updateItem(Long id) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    protected void deleteItem(Long id) {
-        // TODO Auto-generated method stub
-
-    }
-
 }

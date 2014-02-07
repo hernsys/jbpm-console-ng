@@ -18,6 +18,7 @@ package org.jbpm.console.ng.gc.client.list.base;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -34,8 +35,10 @@ import org.uberfire.workbench.events.NotificationEvent;
 import com.github.gwtbootstrap.client.ui.DataGrid;
 import com.github.gwtbootstrap.client.ui.SimplePager;
 import com.google.gwt.cell.client.ActionCell;
+import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.CompositeCell;
 import com.google.gwt.cell.client.HasCell;
+import com.google.gwt.core.shared.GWT;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
@@ -51,6 +54,8 @@ import com.google.gwt.view.client.SingleSelectionModel;
 
 public abstract class BaseViewImpl<T extends GenericSummary, P> extends GenericActions<T> implements GridViewContainer<T>,
         ButtonsPanelContainer, PagerContainer, RequiresResize {
+
+    private static final String WIDTH_COLUMN_CHECKBOX = "40px";
 
     protected P presenter;
 
@@ -78,15 +83,13 @@ public abstract class BaseViewImpl<T extends GenericSummary, P> extends GenericA
 
     @Inject
     protected PlaceManager placeManager;
-    
-    
-    //msjs
-    protected String NO_ITEMS_FOUND = genericConstants.No_Items_Found();
-    
-    
-    
-    
-    
+
+    protected MultiSelectionModel<T> selectionModel;
+
+    protected Set<T> itemsSelected;
+
+    // msjs
+    protected String MSJ_NO_ITEMS_FOUND = genericConstants.No_Items_Found();
 
     protected void initializeComponents(P presenter, ListDataProvider<T> dataProvider, GridSelectionModel gridSelectionModel) {
         this.presenter = presenter;
@@ -97,37 +100,32 @@ public abstract class BaseViewImpl<T extends GenericSummary, P> extends GenericA
 
     protected void initializeGridView(ListDataProvider<T> dataProvider, GridSelectionModel gridSelectionModel) {
         viewContainer.clear();
-
         listGrid = new DataGrid<T>();
         listGrid.setStyleName(GRID_STYLE);
-
-        pager.setDisplay(listGrid);
-        pager.setStyleName("pagination pagination-right pull-right");
-        pager.setPageSize(DataGridUtils.pageSize);
-
+        this.initPager();
         viewContainer.add(listGrid);
-        listGrid.setEmptyTableWidget(new HTMLPanel(NO_ITEMS_FOUND));
-
+        listGrid.setEmptyTableWidget(new HTMLPanel(MSJ_NO_ITEMS_FOUND));
         sortHandler = new ColumnSortEvent.ListHandler<T>(dataProvider.getList());
-
         listGrid.getColumnSortList().setLimit(1);
-
         this.setSelectionModel(gridSelectionModel);
         this.setGridEvents();
         this.initGridColumns();
-
         listGrid.addColumnSortHandler(sortHandler);
-
         dataProvider.addDataDisplay(listGrid);
-
         this.refreshItems();
+    }
+
+    private void initPager() {
+        pager.setDisplay(listGrid);
+        pager.setStyleName(STYLE_PAGER);
+        pager.setPageSize(DataGridUtils.pageSize);
     }
 
     public void displayNotification(String text) {
         notification.fire(new NotificationEvent(text));
     }
 
-    protected DataGrid<T> getListGrid() {
+    public DataGrid<T> getListGrid() {
         return listGrid;
     }
 
@@ -148,6 +146,10 @@ public abstract class BaseViewImpl<T extends GenericSummary, P> extends GenericA
         this.currentFilter = currentFilter;
     }
     
+    public ListHandler<T> getSortHandler() {
+        return sortHandler;
+    }
+
     protected void actionsColumns() {
         List<HasCell<T, ?>> cells = new LinkedList<HasCell<T, ?>>();
 
@@ -155,7 +157,7 @@ public abstract class BaseViewImpl<T extends GenericSummary, P> extends GenericA
             @Override
             public void execute(T item) {
                 Long id = (Long) item.getId();
-                DataGridUtils.paintRowSelected(listGrid, id);
+                DataGridUtils.paintRowSelected(listGrid, String.valueOf(id));
                 readItem(id);
             }
         }));
@@ -164,7 +166,7 @@ public abstract class BaseViewImpl<T extends GenericSummary, P> extends GenericA
             @Override
             public void execute(T item) {
                 Long id = (Long) item.getId();
-                DataGridUtils.paintRowSelected(listGrid, id);
+                DataGridUtils.paintRowSelected(listGrid, String.valueOf(id));
                 updateItem(id);
             }
         }));
@@ -173,7 +175,7 @@ public abstract class BaseViewImpl<T extends GenericSummary, P> extends GenericA
             @Override
             public void execute(T item) {
                 Long id = (Long) item.getId();
-                DataGridUtils.paintRowSelected(listGrid, id);
+                DataGridUtils.paintRowSelected(listGrid, String.valueOf(id));
                 deleteItem(id);
             }
         }));
@@ -191,7 +193,7 @@ public abstract class BaseViewImpl<T extends GenericSummary, P> extends GenericA
 
     @Override
     public void setSelectionModel(GridSelectionModel gridSelectionModel) {
-        switch (gridSelectionModel){
+        switch (gridSelectionModel) {
         case SIMPLE:
             setSimpleSelectionModel();
             break;
@@ -199,34 +201,75 @@ public abstract class BaseViewImpl<T extends GenericSummary, P> extends GenericA
             setMultiSelectionModel();
             break;
         }
-        
 
     }
-    
-    private void setSimpleSelectionModel(){
+
+    private void setSimpleSelectionModel() {
+        GWT.log("init simple");
         final SingleSelectionModel<T> selectionModel = new SingleSelectionModel<T>();
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 T item = selectionModel.getSelectedObject();
                 if (item != null) {
-                    DataGridUtils.paintRowSelected(listGrid, (Long)item.getId());
+                    DataGridUtils.paintRowSelected(listGrid, String.valueOf(item.getId()));
                 }
+                simpleSelectionModelChange(event, item);
             }
         });
         listGrid.setSelectionModel((SelectionModel<? super T>) selectionModel);
     }
-    
-    private void setMultiSelectionModel(){
+
+    protected void setMultiSelectionModel() {
+        if(itemsSelected == null){
+            this.addRowSelector();
+        }
         final MultiSelectionModel<T> selectionModel = new MultiSelectionModel<T>();
+        itemsSelected = null;
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                onSelectionModelChange(event, selectionModel.getSelectedSet());
+                itemsSelected = selectionModel.getSelectedSet();
+                for (T item : itemsSelected) {
+                    DataGridUtils.paintRowSelected(listGrid, String.valueOf(item.getId()));
+                }
+                multiSelectionModelChange(event, itemsSelected);
             }
         });
-
-        listGrid.setSelectionModel(selectionModel, DefaultSelectionEventManager.<T>createCheckboxManager());
+        listGrid.setSelectionModel((SelectionModel<? super T>) selectionModel,
+                DefaultSelectionEventManager.<T> createCheckboxManager());
+        this.selectionModel = selectionModel;
     }
 
+    private void addRowSelector() {
+        final Column<T, Boolean> rowSelectColumn = new Column<T, Boolean>(new CheckboxCell(true, false)) {
+            @Override
+            public Boolean getValue(T value) {
+                return value != null ? selectionModel.isSelected(value) : false;
+            }
+        };
+        listGrid.addColumn(rowSelectColumn, new ResizableHeader("", listGrid, rowSelectColumn));
+        listGrid.setColumnWidth(rowSelectColumn, WIDTH_COLUMN_CHECKBOX);
+    }
+    
+    @Override
+    protected void createItem() {
+        ((BaseGenericCRUD) presenter).createItem();
+    }
+    
+    @Override
+    protected void deleteItem(Long id) {
+        ((BaseGenericCRUD) presenter).deleteItem(id);
+    }
+    
+    @Override
+    protected void updateItem(Long id) {
+        ((BaseGenericCRUD) presenter).updateItem(id);
+    }
+    
+    @Override
+    protected void readItem(Long id) {
+        ((BaseGenericCRUD) presenter).readItem(id);
+    }
+    
 }

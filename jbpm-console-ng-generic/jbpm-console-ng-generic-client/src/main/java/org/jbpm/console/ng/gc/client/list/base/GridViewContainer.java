@@ -30,7 +30,8 @@ public interface GridViewContainer<T> {
 
     //selection model
     void setSelectionModel(GridSelectionModel selectionModel);
-    void onSelectionModelChange(SelectionChangeEvent event, Set<T> selectedItemsSelectionModel);
+    void multiSelectionModelChange(SelectionChangeEvent event, Set<T> selectedItemsSelectionModel);
+    void simpleSelectionModelChange(SelectionChangeEvent event, T selectedItemSelectionModel);
     
 
     void setGridEvents();

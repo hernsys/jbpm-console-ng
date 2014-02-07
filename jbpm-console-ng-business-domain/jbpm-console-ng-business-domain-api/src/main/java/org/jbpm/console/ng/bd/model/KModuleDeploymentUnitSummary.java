@@ -95,4 +95,8 @@ public class KModuleDeploymentUnitSummary extends DeploymentUnitSummary {
         this.strategy = strategy;
     }
     
+    public String getName(){
+        return this.artifactId;
+    }
+    
 }

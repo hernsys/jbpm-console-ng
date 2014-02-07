@@ -34,6 +34,7 @@ import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Event.NativePreviewHandler;
+import org.jbpm.console.ng.gc.client.util.DataGridUtils;
 
 public class ResizableHeader<T> extends Header<String> {
 

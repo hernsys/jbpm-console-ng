@@ -17,6 +17,8 @@
 package org.jbpm.console.ng.gc.client.list.base;
 
 public interface PagerContainer {
+    
+    static final String STYLE_PAGER = "pagination pagination-right pull-right";
 
     /*
      * this method must be overwriting when the ClickEvent need a particular

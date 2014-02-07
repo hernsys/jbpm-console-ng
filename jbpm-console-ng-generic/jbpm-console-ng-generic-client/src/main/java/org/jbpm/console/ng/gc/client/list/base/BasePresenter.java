@@ -40,21 +40,16 @@ import com.google.gwt.view.client.ListDataProvider;
 
 public abstract class BasePresenter<T extends GenericSummary, V> extends BaseGenericCRUD {
 
-    public BasePresenter() {
-        makeMenuBar();
-    }
-
     protected static Constants constants = GWT.create(Constants.class);
 
     protected ListDataProvider<T> dataProvider = new ListDataProvider<T>();
-    
+
     protected List<T> allItemsSummaries;
-    
-    //menu
+
+    // menu
     protected Menus menus;
     protected String NEW_ITEM_MENU = constants.New_Item();
     protected String REFRESH_ITEM_MENU = constants.Refresh();
-    
 
     @Inject
     protected PlaceManager placeManager;
@@ -63,8 +58,6 @@ public abstract class BasePresenter<T extends GenericSummary, V> extends BaseGen
     protected V view;
 
     protected abstract void refreshItems();
-
-    protected abstract void filterItems(String text);
 
     protected abstract void onSearchEvent(@Observes final SearchEvent searchEvent);
 
@@ -75,7 +68,7 @@ public abstract class BasePresenter<T extends GenericSummary, V> extends BaseGen
     public ListDataProvider<T> getDataProvider() {
         return dataProvider;
     }
-    
+
     protected void refreshData() {
         dataProvider.refresh();
     }
@@ -94,24 +87,32 @@ public abstract class BasePresenter<T extends GenericSummary, V> extends BaseGen
         }).endMenu().build();
     }
 
-    protected void filterGrid(ColumnSortList.ColumnSortInfo sortInfo, String text, DataGrid<T> myListGrid) {
-        List<T> filteredTasksSimple = Lists.newArrayList();
+    protected void filterItems(String text, DataGrid<T> listGrid) {
+        ColumnSortList.ColumnSortInfo sortInfo = listGrid.getColumnSortList().size() > 0 ? listGrid.getColumnSortList().get(0)
+                : null;
+        if (allItemsSummaries != null) {
+            this.filterGrid(sortInfo, text, listGrid);
+        }
+    }
+
+    protected void filterGrid(ColumnSortList.ColumnSortInfo sortInfo, String text, DataGrid<T> listGrid) {
+        List<T> filtereditems = Lists.newArrayList();
         if (!text.equals("")) {
             for (T ts : allItemsSummaries) {
                 if (ts.getName().toLowerCase().contains(text.toLowerCase())) {
-                    filteredTasksSimple.add(ts);
+                    filtereditems.add(ts);
                 }
             }
         } else {
-            filteredTasksSimple = allItemsSummaries;
+            filtereditems = allItemsSummaries;
         }
         dataProvider.getList().clear();
-        dataProvider.getList().addAll(filteredTasksSimple);
+        dataProvider.getList().addAll(filtereditems);
         if (sortInfo != null && sortInfo.isAscending()) {
-            myListGrid.getColumnSortList().clear();
+            listGrid.getColumnSortList().clear();
             ColumnSortInfo columnSortInfo = new ColumnSortInfo(sortInfo.getColumn(), sortInfo.isAscending());
-            myListGrid.getColumnSortList().push(columnSortInfo);
-            ColumnSortEvent.fire(myListGrid, myListGrid.getColumnSortList());
+            listGrid.getColumnSortList().push(columnSortInfo);
+            ColumnSortEvent.fire(listGrid, listGrid.getColumnSortList());
         }
     }
 
